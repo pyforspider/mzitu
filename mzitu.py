@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 
 start_url = 'https://www.mzitu.com'
 waiting_urls = []
-sem = asyncio.Semaphore(450)
+sem = asyncio.Semaphore(400)
 
 
 # 请求一个url, 返回 response
