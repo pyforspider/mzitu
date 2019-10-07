@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 start_url = 'https://www.mzitu.com'
 waiting_urls = []
 sem = asyncio.Semaphore(400)
+img_total = 0
 
 
 # 请求一个url, 返回 response
@@ -68,15 +69,21 @@ async def article_handle(url, num):
 				else:
 					break
 
-			res = await fetch(target_pic_link, session, url)
-			content = await res.read()
-			file_path = "img" + os.path.sep + soup.find_all("div")[2].find_all("div")[3].find("img").attrs["alt"]
-			if not os.path.exists(file_path):
-				os.makedirs(file_path)
-			file_path = file_path + os.path.sep + '{}.jpg'.format(num)
-			async with aiofiles.open(file_path, "wb") as fb:
-				print('Already save Pic file {} NO:{}'.format(file_path, num))
-				await fb.write(content)
+			file_folder_name = "img" + os.path.sep + soup.find_all("div")[2].find_all("div")[3].find("img").attrs["alt"]
+			if not os.path.exists(file_folder_name):
+				os.makedirs(file_folder_name)
+			img_file_path = file_folder_name + os.path.sep + '{}.jpg'.format(num)
+			print(img_file_path, "{} already exist !")
+
+			if not os.path.exists(img_file_path):
+				res = await fetch(target_pic_link, session, url)
+				content = await res.read()
+				async with aiofiles.open(img_file_path, "wb") as fb:
+					print('Success to save Pic file {} .'.format(img_file_path))
+					global img_total
+					img_total += 1
+					print(img_total)
+					await fb.write(content)
 
 
 # 提交目标url中图片链接的协程 -> 解析并储存到文件
